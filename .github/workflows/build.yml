@@ -1,3 +1,37 @@
+
+k
+k
+k
+k
+k
+k
+
+k
+k
+k
+k
+k
+k
+k
+k
+k
+k
+k
+k
+k
+k
+k
+k
+k
+k
+k
+k
+k
+k
+k
+k
+k
+k
 name: Build APK
 
 on:
@@ -19,10 +53,13 @@ jobs:
         run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
       - name: Build Debug APK
-        run: gradle assembleDebug
+        run: ./gradlew assembleDebug
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: personal-hub-debug
           path: app/build/outputs/apk/debug/app-debug.apk
+
