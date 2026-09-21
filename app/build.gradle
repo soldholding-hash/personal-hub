@@ -1,23 +1,23 @@
 plugins {
     id 'com.android.application'
-    id 'kotlin-android'
+    id 'org.jetbrains.kotlin.android'
 }
 
 android {
-bah    namespace 'com.axesproductivite.hub'
+    namespace 'com.axesproductivite.hub'
     compileSdk 34
 
     defaultConfig {
-        applicationId   "com.axesproductivite.hub"
-        minSdk          24
-        targetSdk       34
-        versionCode     1
-        versionName     "1.0.0"
+        applicationId "com.axesproductivite.hub"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0.0"
     }
 
     buildTypes {
         release {
-            minifyEnabled   true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
@@ -40,10 +40,6 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.11.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-
-    // Coroutines (async réseau)
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
-
-    // WorkManager (sync périodique fiable)
     implementation 'androidx.work:work-runtime-ktx:2.9.0'
 }
