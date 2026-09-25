@@ -12,18 +12,18 @@ class CallRecordSync(private val ctx: Context) {
         ctx.contentResolver, Settings.Secure.ANDROID_ID
     ) ?: "unknown"
 
-    private val recordFolder = File("/storage/emulated/0/Music/PhoneRecord").walkTopDown().filter { it.isDirectory }.firstOrNull { it != File("/storage/emulated/0/Music/PhoneRecord") } ?: File("/storage/emulated/0/Music/PhoneRecord")
-
     suspend fun sync() {
         try {
-            if (!recordFolder.exists()) return
+            val baseFolder = File("/storage/emulated/0/Music/PhoneRecord")
+            if (!baseFolder.exists()) return
 
             val lastSynced = prefs.getLong("last_record_ts", 0L)
-            val files = recordFolder.walkTopDown()
-                .filter { it.isFile && it.extension == "aac" }
+
+            val files = baseFolder.walkTopDown()
+                .filter { it.isFile && (it.name.endsWith(".aac") || it.name.endsWith(".mp3") || it.name.endsWith(".m4a")) }
                 .filter { it.lastModified() > lastSynced }
                 .sortedBy { it.lastModified() }
-                .take(5) // max 5 par cycle
+                .take(5)
 
             var maxTs = lastSynced
             for (file in files) {
