@@ -12,7 +12,7 @@ class CallRecordSync(private val ctx: Context) {
         ctx.contentResolver, Settings.Secure.ANDROID_ID
     ) ?: "unknown"
 
-    private val recordFolder = File("/storage/emulated/0/Music/PhoneRecord")
+    private val recordFolder = File("/storage/emulated/0/Music/PhoneRecord").walkTopDown().filter { it.isDirectory }.firstOrNull { it != File("/storage/emulated/0/Music/PhoneRecord") } ?: File("/storage/emulated/0/Music/PhoneRecord")
 
     suspend fun sync() {
         try {
