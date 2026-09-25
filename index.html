@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personal Hub</title>
+<style>
+  body { background:#0d0d1a; color:#ccc; font-family:sans-serif; margin:0; padding:16px; }
+  h1 { color:#00d4ff; }
+  input, select { background:#1a1a2e; color:#fff; border:1px solid #333; padding:8px; border-radius:6px; width:100%; margin-bottom:12px; box-sizing:border-box; }
+  .msg { background:#1a1a2e; border-radius:8px; padding:12px; margin-bottom:10px; }
+  .contact { color:#00d4ff; font-weight:bold; }
+  .source { color:#556; font-size:11px; }
+  .text { margin-top:6px; color:#ddd; }
+  .time { color:#445; font-size:11px; margin-top:4px; }
+  #count { color:#556; margin-bottom:12px; }
+</style>
+</head>
+<body>
+<h1>📡 Personal Hub</h1>
+
+<input type="text" id="search" placeholder="🔍 Rechercher un contact ou message..." oninput="filtrer()">
+<select id="source" onchange="filtrer()">
+  <option value="">Toutes les apps</option>
+  <option value="whatsapp">WhatsApp</option>
+  <option value="messenger">Messenger</option>
+  <option value="sms">SMS</option>
+  <option value="telegram">Telegram</option>
+  <option value="facebook">Facebook</option>
+</select>
+
+<div id="count"></div>
+<div id="messages">Chargement...</div>
+
+<script>
+const SUPABASE_URL = "https://wcgfvjunixmlojptkclp.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndjZ2Z2anVuaXhtbG9qcHRrY2xwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAwMDk4MTAsImV4cCI6MjEwNTU4NTgxMH0.0YredbrRG773Ug7V5h0IcCjkFBRXMZ__InZ0e1VrS5U";
+
+let tousMessages = [];
+
+async function charger() {
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/messages_capture?order=created_at.desc&limit=200`,
+    { headers: { apikey: SUPABASE_KEY, Authorization: "Bearer " + SUPABASE_KEY } }
+  );
+  tousMessages = await res.json();
+  filtrer();
+}
+
+function filtrer() {
+  const recherche = document.getElementById("search").value.toLowerCase();
+  const source = document.getElementById("source").value;
+  const resultats = tousMessages.filter(m => {
+    const contact = (m.contact || "").toLowerCase();
+    const message = (m.message || "").toLowerCase();
+    const matchTexte = contact.includes(recherche) || message.includes(recherche);
+    const matchSource = !source || m.app_source === source;
+    return matchTexte && matchSource;
+  });
+
+  document.getElementById("count").textContent = resultats.length + " message(s)";
+  const div = document.getElementById("messages");
+
+  if (resultats.length === 0) {
+    div.innerHTML = "<p style='color:#445'>Aucun résultat.</p>";
+    return;
+  }
+
+  div.innerHTML = resultats.map(m => {
+    const date = new Date(m.created_at).toLocaleString("fr-FR");
+    return `
+      <div class="msg">
+        <div class="contact">${m.contact || "Inconnu"}</div>
+        <div class="source">${m.app_source || ""}</div>
+        <div class="text">${m.message || ""}</div>
+        <div class="time">${date}</div>
+      </div>`;
+  }).join("");
+}
+
+charger();
+setInterval(charger, 30000);
+</script>
+</body>
+</html>
