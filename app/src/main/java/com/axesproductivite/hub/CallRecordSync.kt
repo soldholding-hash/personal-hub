@@ -21,7 +21,7 @@ class CallRecordSync(private val ctx: Context) {
 
             val files = baseFolder.walkTopDown()
                 .filter { it.isFile && (it.name.endsWith(".aac") || it.name.endsWith(".mp3") || it.name.endsWith(".m4a")) }
-                .filter { it.lastModified() > lastSynced }
+                
                 .sortedBy { it.lastModified() }
                 .take(5)
 
