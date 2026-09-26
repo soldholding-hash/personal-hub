@@ -74,7 +74,7 @@ audio { width:100%; margin-top:8px; }
     <div class="num" id="cnt-photos">-</div>
     <div class="label">PHOTOS</div>
   </div>
-  <div class="card dark" onclick="showTab('messenger')">
+  <div class="card blue" onclick="showTab('telegram')"><div class="num" id="cnt-tg">-</div><div class="label">TELEGRAM</div></div><div class="card dark" onclick="showTab('messenger')">
     <div class="num" id="cnt-msngr">-</div>
     <div class="label">MESSENGER</div>
   </div>
@@ -119,6 +119,7 @@ async function charger() {
   document.getElementById("cnt-msg").textContent = msgs.length;
   document.getElementById("cnt-wa").textContent = msgs.filter(m=>m.app_source==="whatsapp").length;
   document.getElementById("cnt-sms").textContent = msgs.filter(m=>m.app_source==="sms").length;
+  document.getElementById("cnt-tg").textContent = msgs.filter(m=>m.app_source==="telegram").length;
   document.getElementById("cnt-msngr").textContent = msgs.filter(m=>m.app_source==="messenger").length;
   document.getElementById("cnt-calls").textContent = calls.length;
 
