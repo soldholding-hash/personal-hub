@@ -83,7 +83,7 @@ object SupabaseClient {
             val conn = (url.openConnection() as HttpURLConnection).apply {
                 requestMethod = "POST"
                 setRequestProperty("Authorization", "Bearer $SUPABASE_ANON_KEY")
-                setRequestProperty("Content-Type", "image/jpeg")
+                setRequestProperty("Content-Type", "audio/aac")
                 setRequestProperty("x-upsert", "true")
                 doOutput = true
                 connectTimeout = 30_000
