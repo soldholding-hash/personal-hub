@@ -71,7 +71,7 @@ audio { width:100%; margin-top:8px; }
     <div class="num" id="cnt-rec">-</div>
     <div class="label">ENREGISTREMENTS</div>
   </div>
-  <div class="card dark" onclick="showTab('messenger')">
+  <div class="card green" onclick="showTab('photos')"><div class="num" id="cnt-photos">-</div><div class="label">PHOTOS</div></div><div class="card dark" onclick="showTab('messenger')">
     <div class="num" id="cnt-msngr">-</div>
     <div class="label">MESSENGER</div>
   </div>
@@ -81,7 +81,7 @@ audio { width:100%; margin-top:8px; }
   <div class="tabs">
     <div class="tab active" id="tab-messages" onclick="showTab('messages')">Messages</div>
     <div class="tab" id="tab-appels" onclick="showTab('appels')">Appels</div>
-    <div class="tab" id="tab-enregistrements" onclick="showTab('enregistrements')">Audio</div>
+    <div class="tab" id="tab-photos" onclick="showTab('photos')">Photos</div><div class="tab" id="tab-enregistrements" onclick="showTab('enregistrements')">Audio</div>
   </div>
 
   <div class="section" id="sec-messages" style="display:none">
@@ -94,7 +94,7 @@ audio { width:100%; margin-top:8px; }
     <div id="list-appels"></div>
   </div>
 
-  <div class="section" id="sec-enregistrements" style="display:none">
+  <div class="section" id="sec-photos" style="display:none"><div class="section-title">📷 PHOTOS</div><div id="list-photos" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;padding:4px"></div></div><div class="section" id="sec-enregistrements" style="display:none">
     <div class="section-title">🎙️ ENREGISTREMENTS</div>
     <div id="list-enregistrements"></div>
   </div>
