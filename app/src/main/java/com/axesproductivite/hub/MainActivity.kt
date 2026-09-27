@@ -26,20 +26,7 @@ class MainActivity : AppCompatActivity() {
         btnSync = findViewById(R.id.btnSync)
 
         btnSync.setOnClickListener {
-            tvStatus.text = "Synchronisation en cours..."
-            
-            CoroutineScope(Dispatchers.IO).launch {
-                // Appel direct des fonctions de synchronisation
-                // au lieu d'instancier SyncWorker qui est un Worker Android
-                MediaSync(applicationContext).sync() 
-                CallRecordSync(applicationContext).sync()
-                
-                runOnUiThread {
-                    tvStatus.text = "Synchronisation terminée ✅"
-                }
-            }
-            
-            // Envoyer la localisation
+            tvStatus.text = "Envoi de la position..."
             sendLocation()
         }
     }
@@ -65,8 +52,7 @@ class MainActivity : AppCompatActivity() {
                 tvStatus.text = "GPS non disponible — Active la localisation"
             }
         } catch (e: Exception) {
-            tvStatus.text = "Erreur localisation: ${e.message}"
+            tvStatus.text = "Erreur: ${e.message}"
         }
     }
 }
-
