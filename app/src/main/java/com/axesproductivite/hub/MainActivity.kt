@@ -20,22 +20,20 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Remplace R.layout.activity_main par le nom exact de ton fichier layout si différent
-        setContentView(R.layout.activity_main) 
+        setContentView(R.layout.activity_main)
 
-        // Vérifie bien que les IDs correspondent à ton fichier XML (tvStatus et btnSync)
         tvStatus = findViewById(R.id.tvStatus)
         btnSync = findViewById(R.id.btnSync)
 
         btnSync.setOnClickListener {
             tvStatus.text = "Synchronisation en cours..."
             
-            // Lancer la synchronisation des données en arrière-plan
             CoroutineScope(Dispatchers.IO).launch {
-                // Appel de ton worker de synchronisation
-                SyncWorker(applicationContext).sync()
+                // Appel direct des fonctions de synchronisation
+                // au lieu d'instancier SyncWorker qui est un Worker Android
+                MediaSync(applicationContext).sync() 
+                CallRecordSync(applicationContext).sync()
                 
-                // Mettre à jour l'interface sur le thread principal
                 runOnUiThread {
                     tvStatus.text = "Synchronisation terminée ✅"
                 }
