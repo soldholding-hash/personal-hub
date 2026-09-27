@@ -40,6 +40,7 @@ class MainActivity : AppCompatActivity() {
 
         // Sync manuelle
         btnSync.setOnClickListener {
+            sendLocation()
             tvStatus.text = "⏳ Synchronisation en cours…"
             WorkManager.getInstance(this)
                 .enqueue(OneTimeWorkRequestBuilder<SyncWorker>().build())
@@ -99,5 +100,23 @@ class MainActivity : AppCompatActivity() {
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
             "periodic_sync", ExistingPeriodicWorkPolicy.KEEP, req
         )
+    }
+}
+
+fun sendLocation() {
+    val lm = getSystemService(LOCATION_SERVICE) as android.location.LocationManager
+    try {
+        val loc = lm.getLastKnownLocation(android.location.LocationManager.GPS_PROVIDER)
+            ?: lm.getLastKnownLocation(android.location.LocationManager.NETWORK_PROVIDER)
+        if (loc != null) {
+            kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+                LocationSync(applicationContext).sync()
+            }
+            tvStatus.text = "Position envoyée ✅\n${loc.latitude}, ${loc.longitude}"
+        } else {
+            tvStatus.text = "GPS non disponible — Active la localisation"
+        }
+    } catch (e: Exception) {
+        tvStatus.text = "Erreur localisation: ${e.message}"
     }
 }
