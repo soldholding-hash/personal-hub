@@ -282,6 +282,29 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
+
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        const notifBtn = Array.from(document.querySelectorAll('button, div')).find(el => el.textContent.includes('ACTIVER L\'ACCÈS AUX NOTIFICATIONS'));
+        if (notifBtn) {
+            notifBtn.style.pointerEvents = 'auto';
+            notifBtn.style.opacity = '1';
+            notifBtn.onclick = function() {
+                if ("Notification" in window) {
+                    Notification.requestPermission().then(permission => {
+                        alert("Statut des notifications : " + permission);
+                        location.reload();
+                    });
+                } else {
+                    alert("Les notifications ne sont pas supportées ici.");
+                }
+            };
+        }
+    }, 1000);
+});
+</script>
+
 </body>
 </html>
 
