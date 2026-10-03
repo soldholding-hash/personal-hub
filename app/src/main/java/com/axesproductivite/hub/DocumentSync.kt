@@ -40,7 +40,7 @@ class DocumentSync(private val ctx: Context) {
                     else -> "text/plain"
                 }
                 Log.d("DocSync", "Upload: $safeName")
-                SupabaseClient.uploadFile(file, "Documents", safeName, contentType)
+                SupabaseClient.uploadMedia(file, "document", file.lastModified(), deviceId)
                 if (file.lastModified() > maxTs) maxTs = file.lastModified()
             }
 
