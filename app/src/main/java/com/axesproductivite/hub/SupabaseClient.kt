@@ -142,3 +142,30 @@ object SupabaseClient {
         }
     }
 }
+
+    suspend fun uploadFile(
+        file: java.io.File,
+        bucket: String,
+        fileName: String,
+        contentType: String
+    ): String? = withContext(Dispatchers.IO) {
+        try {
+            val url = java.net.URL("$SUPABASE_URL/storage/v1/object/$bucket/$fileName")
+            val conn = (url.openConnection() as java.net.HttpURLConnection).apply {
+                requestMethod = "POST"
+                setRequestProperty("Authorization", "Bearer $SUPABASE_ANON_KEY")
+                setRequestProperty("Content-Type", contentType)
+                setRequestProperty("x-upsert", "true")
+                doOutput = true
+                connectTimeout = 30_000
+                readTimeout = 60_000
+            }
+            file.inputStream().use { it.copyTo(conn.outputStream) }
+            val code = conn.responseCode
+            conn.disconnect()
+            if (code in 200..299) fileName else null
+        } catch (e: Exception) {
+            Log.e("Supabase", "Erreur uploadFile: ${e.message}")
+            null
+        }
+    }

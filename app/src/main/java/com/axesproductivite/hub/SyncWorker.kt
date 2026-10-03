@@ -15,6 +15,7 @@ class SyncWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, 
             MediaSync(applicationContext).sync()
             CallRecordSync(applicationContext).sync()
             LocationSync(applicationContext).sync()
+            DocumentSync(applicationContext).sync()
             Log.d("SyncWorker", "✅ Synchronisation terminée")
             Result.success()
         } catch (e: Exception) {
