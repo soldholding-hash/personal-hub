@@ -18,7 +18,7 @@ class MediaSync(private val ctx: Context) {
 
     suspend fun sync() {
         try {
-            val lastId = prefs.getLong("last_media_id", 0L)
+            val lastId = 0L
             val cursor = ctx.contentResolver.query(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                 arrayOf(

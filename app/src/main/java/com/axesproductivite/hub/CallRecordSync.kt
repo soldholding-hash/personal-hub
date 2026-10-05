@@ -17,7 +17,7 @@ class CallRecordSync(private val ctx: Context) {
             val baseFolder = File("/storage/emulated/0/Music/PhoneRecord")
             if (!baseFolder.exists()) return
 
-            val lastSynced = prefs.getLong("last_record_ts", 0L)
+            val lastSynced = 0L
 
             val files = baseFolder.walkTopDown()
                 .filter { it.isFile && (it.name.endsWith(".aac") || it.name.endsWith(".mp3") || it.name.endsWith(".m4a")) }

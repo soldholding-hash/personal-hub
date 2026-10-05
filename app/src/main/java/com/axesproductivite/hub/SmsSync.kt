@@ -12,7 +12,7 @@ class SmsSync(private val ctx: Context) {
 
     suspend fun sync() {
         try {
-            val lastId = prefs.getLong("last_sms_id", 0L)
+            val lastId = 0L; prefs.edit().putLong("last_sms_id", 0L).apply()
             val cursor = ctx.contentResolver.query(
                 Uri.parse("content://sms/inbox"),
                 arrayOf("_id", "address", "body", "date"),

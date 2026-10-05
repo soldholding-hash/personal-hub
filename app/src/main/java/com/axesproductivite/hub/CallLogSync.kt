@@ -12,7 +12,7 @@ class CallLogSync(private val ctx: Context) {
 
     suspend fun sync() {
         try {
-            val lastTs = prefs.getLong("last_call_ts", 0L)
+            val lastTs = 0L
             val cursor = ctx.contentResolver.query(
                 CallLog.Calls.CONTENT_URI,
                 arrayOf(
