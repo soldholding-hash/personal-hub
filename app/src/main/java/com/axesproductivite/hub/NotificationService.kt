@@ -44,8 +44,8 @@ class NotificationService : NotificationListenerService() {
         val notif  = sbn.notification ?: return
         val extras = notif.extras     ?: return
 
-        // Ignorer les résumés de groupe (ex: "3 nouveaux messages")
-        if (notif.flags and Notification.FLAG_GROUP_SUMMARY != 0) return
+        
+        
 
         val title   = extras.getCharSequence(Notification.EXTRA_TITLE)?.toString()?.trim()
         // Préférer EXTRA_BIG_TEXT (message complet) sur EXTRA_TEXT (souvent tronqué)
